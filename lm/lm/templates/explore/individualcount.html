@@ -1,0 +1,52 @@
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1.1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+
+        var data = google.visualization.arrayToDataTable({{ data|safe }});
+        var options = {
+          title: 'Animalia is a kingdom contributing with high individualCount values',
+          legend: { position: 'top', maxLines: 3 },
+          isStacked: 'percent',
+        };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('individualCountChart'));
+        chart.draw(data, options);
+
+        var datan = google.visualization.arrayToDataTable({{ datan|safe }});
+        var optionsn = {
+          title: 'Animalia is a kingdom contributing with negative/zero individualCount values',
+          legend: { position: 'top', maxLines: 3 },
+          isStacked: 'percent',
+        };
+
+        var chartn = new google.visualization.ColumnChart(document.getElementById('individualCountNegativeChart'));
+        chartn.draw(datan, optionsn);
+      }
+    </script>
+    <div class="container-fluid full" style="min-height:600px;margin:0px;padding:0px; ">
+      <div class="row-fluid full" style="margin:0px;padding:0px;">
+        <div class="col-md-12" style="margin:0px;padding:10px;">
+            <h3>Statistics based on individualCount provided by the source</h3>
+        </div>
+        <div class="col-md-6" style="margin:0px;padding:10px;">
+<b>How many records are in iDigBio?</b>
+        </div>
+        <div class="col-md-6" style="margin:0px;padding:10px;">
+{{recordsTotal}}
+        </div>
+        <div class="col-md-6" style="margin:0px;padding:10px;">
+<b>How many specimens are represented in these records?</b>
+        </div>
+        <div class="col-md-6" style="margin:0px;padding:10px;">
+{{individualCountTotal}}
+        </div>
+        <div class="col-md-12" style="margin:0px;padding:10px;">
+            <b>Distribution of individualCount value per Kingdom</b>
+            <div id="individualCountChart" style="width: 900px; height: 500px;"></div>
+        </div>
+        <div class="col-md-12" style="margin:0px;padding:10px;">
+            <b>Distribution of negative/zero individualCount value per Kingdom</b>
+            <div id="individualCountNegativeChart" style="width: 900px; height: 500px;"></div>
+        </div>

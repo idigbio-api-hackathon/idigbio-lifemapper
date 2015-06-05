@@ -1,0 +1,73 @@
+<div class="panel panel-default">
+  <div class="panel-heading"><h4>Lifemapper Species Distribution Modeling for <b><i><a href="https://portal.idigbio.org/portal/search?scientificname={{species}}" target="_blank">{{species|title}}</a></i></b></h4></div>
+    <div class="panel-body">
+      <table id="map" class="table" style="border-collapse:collapse;" width="90%">
+        <thead>
+          <tr>
+                <th>Model</th>
+                <th>Distribution</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for map in maps %}
+          <tr><td>Projection {{ map.0 }} was built by applying the model results to scenario <a href="#" data-toggle="tooltip" data-placement="right" title="{{ map.2 }}">{{ map.1 }}</a></td><td>{% if map.4 == '300' %}<img src="{{ map.3 }}"/>{% else %}Prediction being processed.{% endif %}</td></tr>
+        {% endfor %}
+          <tr><td>{{ model.0 }}</td><td>{{ model.1 }}<br/><img src="{{ model.2 }}"/></td></tr>
+        </tbody>
+    </table>
+  </div>
+</div>
+<div class="panel panel-default">
+  <div class="panel-heading"><h4>Collections Contributing to Model</h4></div>
+    <div class="panel-body">
+      <table id="map-attr" class="table table-condensed" style="border-collapse:collapse;" width="90%">
+        <thead>
+          <tr>
+                <th>Collection</th>
+                <th>Publisher</th>
+                <th>Specimens</th>
+                <th>Logo</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+  </div>
+</div>
+<script>
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})
+var attrAPI = 'http://lifemapper.acis.ufl.edu/idigbio/{{species}}/{{species}}_attr.json';
+
+$.getJSON(attrAPI, function (json) {
+
+  for (var key in json) {
+    if (json.hasOwnProperty(key)) {
+       console.log("Collection Name:" + json[key]["collection_name"]);
+       $('#map-attr').append('<tr><td>' + ( typeof json[key]["collection_name"]  !== "undefined" ? json[key]["collection_name"] : '' )
+           + '</td><td>' + ( typeof json[key]["publisherName"] !== "undefined" ? json[key]["publisherName"] : '')
+           + '</td><td>' + ( typeof json[key]["doc_count"] !== "undefined" ? json[key]["doc_count"] : '')
+           + '</td><td>' + ( typeof json[key]["logo_url"] !== "undefined" ? '<img src="' + json[key]["logo_url"] + '" width="30"/>' : '')
+           + '</td></tr>');
+    }
+  }
+$("#map-attr").tablesorter({theme:'bootstrap', headerTemplate : '{content} {icon}', widgets: ['uitheme']});
+//$("#map-attr").trigger("update");
+
+});
+
+/*
+var table = $('#map-attr').dataTable( {
+        lengthChange: false,
+        ajax: "http://lifemapper.acis.ufl.edu/idigbio/{{species}}/{{species}}_attr.json",
+        columns: [
+            { data: null, render: function ( data, type, row ) {
+                // Combine the first and last names into a single table field
+                return data.collection_name;
+            } },
+            { data: "Publisher" },
+        ]
+    } );
+*/
+</script>

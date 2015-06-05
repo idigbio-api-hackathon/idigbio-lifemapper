@@ -1,0 +1,43 @@
+{% load staticfiles %}
+    <header>
+      <!-- wakulla header -->
+      <div class="sixteen columns full alpha omega" id="header">
+        <div id="nav">
+            <ul>
+                <li class="nav-about"><a href="https://www.idigbio.org/about-idigbio">About iDigBio</a></li>
+                <li class="nav-research"><a href="https://www.idigbio.org/research">Research</a></li>
+                <li class="nav-tech"><a href="https://www.idigbio.org/technical-info">Technical Information</a></li>
+                <li class="nav-education"><a href="https://www.idigbio.org/education">Education</a></li>
+            </ul>
+        </div>
+        <div style="font-size:24px;color:#ffffff;">
+        <a href="https://www.idigbio.org"><img src="https://www.idigbio.org/portal/img/idigbio_logo.png" alt="iDigBio" border="0" id="logo"></a>
+        <a href="http://lifemapper.org"><img src="{% static 'lm/lifemapper-badge.jpg' %}" alt="Lifemapper" border="0" id="lmlogo" /></a></div>
+      </div>
+      <div class="sixteen columns full alpha omega" id="snav-research">
+        <div id="snav" class="clearfix">
+          <ul id="portal-menu" style="float:left">
+              <!--<li><a href="https://www.idigbio.org" >iDigBio Home</a></li>-->
+              <li><a href="https://www.idigbio.org/portal" >iDigBio Portal</a></li>
+              <li{% if request.path = '/lm/map/'%} class="active"{% endif %}><a href="/lm/map" >Lifemapper Predictions</a></li>
+              <!--<li{% if request.path = '/lm/species/'%} class="active"{% endif %}>
+                <a href="#" data-toggle="dropdown">Providers <span class="caret"></span></a>
+                <ul id="portal-menu">
+                  <li{% if request.path = '/lm/map/a'%} class="active"{% endif %}><a href="/lm/map/a" >Item a</a></li>
+                  <li{% if request.path = '/lm/map/b'%} class="active"{% endif %}><a href="/lm/map/b" >Item b</a></li>
+                  <li class="divider"></li>
+                </ul>
+              </li>-->
+              <li{% if request.path = '/lm/explore/'%} class="active"{% endif %}><a href="/lm/explore" >Explore Data</a></li>
+              <li{% if request.path = '/lm/tutorial/'%} class="active"{% endif %}><a href="/lm/map/tutorial/" >Tutorial</a></li>
+              <li><a href="https://www.idigbio.org/content/community-research-tools" >Research Tools</a></li>
+          </ul>
+
+          <ul id="user-menu" style="float:right">
+          </ul>
+        </div>
+      </div>
+      <a href="https://www.idigbio.org/contact/PhyloJIVE_feedback" target='_self' id="feedback-link"></a>
+      <!-- /end wakulla header -->
+    </header>
+

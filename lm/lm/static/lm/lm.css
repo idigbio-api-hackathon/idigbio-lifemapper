@@ -1,0 +1,8 @@
+#map-attr .table{
+ height:300px; 
+}
+#map-attr .tbody{
+  overflow-y: scroll;
+  height: 300px;
+  position: absolute;
+}

@@ -1,0 +1,53 @@
+{% load staticfiles %}
+    <div class="container bs-docs-container">
+
+      <div class="row">
+        <div class="col-md-9" role="main">
+          <div class="bs-docs-section">
+            <h2 id="overview" class="page-header">iDigBio-Lifemapper Overview</h2>
+
+            <p class="lead">For more than 300 years, tens of thousands of biologists around the world, through determined and rugged exploration of the planet's wild places, have strived to discover and document the diversity of life on earth. As a lasting legacy of those epic surveys, biological museums have amassed internationally-distributed collections of dried, mounted, pickled, preserved, frozen and stuffed specimens which physically voucher the natural distribution of wild species.</p>
+            <p>Today, with databases and Internet communication protocols, biodiversity research collections have assembled massive caches of information associated with these voucher specimens--data describing what lived where and when.</p>
+            <p>Lifemapper starts there. It uses all of the online geospatial species occurrence data to create distribution maps and, notably, goes one step further to predict where an individual species could exist based on where it is documented to live. Lifemapper does this by combining species occurrence data with global climate, terrain and land cover information, to identify environmental correlates of species ranges.</p>
+            <p>Lifemapper's analysis and modeling tools will address important environmental issues of our times, in particular the potential impact of global climate change on the distribution and sustainability of wild species, and they will inform research priorities for future systematics, ecology and conservation studies.</p>
+            <h3 id="workflow">iDigBio-Lifemapper workflow</h3>
+            <img width="100%" src="{% static 'lm/iDigBioLifemapperWorkflow.png' %}" />
+            <p><b>Lifemapper</b> is a software framework which creates predicted species distribution maps for current and future climate. Lifemapper computes on collection data, offering to researchers individual species modeling, i.e., Ecological Niche Modeling (ENM) and Species Distribution Models (SDM), multi-species modeling, and macro-ecological analyses at community and continental scales.</p>
+            <p><b>iDigBio</b> is an aggregator of collection data, which provides easy access to specimen and auxiliary data through a single unified portal.</p>
+            <p><b>QGIS</b> is a desktop Geographic Information System, similar to ESRI ArcInfo products, but FREE and OPEN SOURCE.  Particularly when installed with GRASS GIS, it is very powerful and has all the functionality of ESRI products.<p>
+            <h3 id="scenarios">Lifemapper Modeling and Scenarios</h3>
+            <p>iDigBio was queried for unique species name, resulting in a list of 32,795 species, which were then queried individually to be modeled using Maxent and predicted for current, 2050 and 2070 scenarios (described below) by LifeMapper.</p>
+            <div class="row">
+        {% for scenario in scenarios %}
+              <div class="col-sm-4">{{ scenario.0 }}
+              </div>
+              <div class="col-sm-8">{{ scenario.1 }}
+              </div>
+        {% endfor %}
+            </div>
+            <h3 id="usage">Using iDigBio-Lifemapper</h3>
+            <p>The geographical distribution prediction can be accessed through a QGIS client with LifeMapper plugin or from this website. In both cases, there are interfaces with auto-complete for the user to enter a species name and retrieve the specimen occurrences or the distribution maps.</p>
+            <h3 id="team">Lifemapper Team</h3>
+            <p>Lifemapper was developed by a team from the Biodiversity Institute at Kansas University (KU): James Beach (assistant director for informatics), Aimee Stewart (Lead software engineer), and software engineers C.J. Grady and Jeff Cavner.</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm" role="complementary">
+            <ul class="nav bs-docs-sidenav">
+              <li>
+                <a href="#overview">Overview</a>
+              </li>
+              <li>
+                <a href="#workflow">iDigBio-Lifemapper Workflow</a>
+              </li>
+              <li>
+                <a href="#scenario">Lifemapper Scenarios</a>
+              </li>
+              <li>
+                <a href="#team">Lifemapper Team</a>
+              </li>
+          </div>
+        </div>
+      </div>
+    </div>
+

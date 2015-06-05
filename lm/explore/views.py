@@ -1,0 +1,73 @@
+from django.shortcuts import render
+from django.http import HttpResponse
+import csv
+import idigbio
+import json
+
+def individualcount(request):
+    sUrl = idigbio.IDIGBIO_API_BASE + "v2/search/records/?limit=1&no_attribution&fields=[%22uuid%22]"
+    jdata = idigbio.wgetLoadJsonTime(sUrl)
+    recordsTotal = "{:,}".format(jdata["itemCount"])
+
+    icUrl = idigbio.IDIGBIO_API_BASE + "v2/summary/top/records/?top_fields=[%22individualcount%22]&count=10000"
+    jdata = idigbio.wgetLoadJsonTime(icUrl)
+    individualCountTotal = "{:,}".format(idigbio.multiplyKeyByItemCount(jdata, "individualcount"))
+
+    icUrl = idigbio.IDIGBIO_API_BASE + "v2/summary/top/records/?top_fields=[%22individualcount%22,%22kingdom%22]&count=10000"
+    jdata = idigbio.wgetLoadJsonTime(icUrl)
+    dataList = idigbio.topJson2Table(jdata, "individualcount", "kingdom", True, 10)
+    data = json.dumps(dataList)
+
+    icUrl = idigbio.IDIGBIO_API_BASE + "v2/summary/top/records/?top_fields=[%22individualcount%22,%22kingdom%22]&count=10000&rq={%22individualcount%22:{%22type%22:%22range%22,%22lte%22:0}}"
+    jdata = idigbio.wgetLoadJsonTime(icUrl)
+    dataList = idigbio.topJson2Table(jdata, "individualcount", "kingdom", True, 0)
+    datan = json.dumps(dataList)
+    
+    context = {'data': data,'datan': datan, 'recordsTotal': recordsTotal, 'individualCountTotal': individualCountTotal}
+    return render(request, 'explore/index.html', context)
+
+def download(request):
+    # Create the HttpResponse object with the appropriate CSV header.
+    case = request.GET.get('case')
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="' + case + '.csv"'
+    if case == "individualCountNegative":
+        writer = csv.writer(response)
+        offset = 0
+        icnUrl = idigbio.IDIGBIO_API_BASE + "v2/search/records/?rq={%22individualcount%22:{%22type%22:%22range%22,%22lte%22:0}}"
+        jdata = idigbio.wgetLoadJsonTime(icnUrl)
+        idigbio.json2Table(jdata, writer, ["uuid", "individualCount", "data.dwc:occurrenceID", "data.dwc:institutionCode", "data.dwc:collectionCode", "data.dwc:individualCount"])
+        recLeft = jdata["itemCount"] - len(jdata["items"])
+        while recLeft > 0:
+            icnUrl = idigbio.IDIGBIO_API_BASE + "v2/search/records/?rq={%22individualcount%22:{%22type%22:%22range%22,%22lte%22:0}}&offset=" + str(offset)
+            offset += len(jdata["items"])
+            jdata = idigbio.wgetLoadJsonTime(icnUrl)
+            idigbio.json2Table(jdata, writer, ["uuid", "individualCount", "data.dwc:occurrenceID", "data.dwc:institutionCode", "data.dwc:collectionCode", "data.dwc:individualCount"])
+            recLeft -= len(jdata["items"])
+    return response
+
+#total = 0
+#records = 0
+#count = 0
+#queryRecords = int(j1["itemCount"])
+
+#for k in j1["individualcount"]:
+#    print k, j1["individualcount"][k]
+#    if k == 0:
+#        print "Suspicious count zero:", j1["individualcount"][k]["itemCount"]
+#        total += int(j1["individualcount"][k]["itemCount"])
+#    else:
+#        total += int(k) * int(j1["individualcount"][k]["itemCount"])
+#    records += int(j1["individualcount"][k]["itemCount"])
+#    count += 1
+
+#print "Histogram size:", count
+#print "Total number of specimens:", total
+#print "Total number of records:", records
+#print "Total number of queried records:", queryRecords
+#print "Specimens per record:", total / float(records)
+#print "Total number of specimens including unknown cases:", queryRecords - records + total
+#print "Specimens per record:", (queryRecords - records + total) / float(queryRecords)
+
+#    data = [1, 2, 3]
+

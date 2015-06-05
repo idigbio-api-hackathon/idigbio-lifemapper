@@ -1,0 +1,62 @@
+{% load staticfiles %}
+    <div class="container-fluid full" style="min-height:600px;margin:0px;padding:0px; ">
+      <div class="row-fluid full" style="margin:0px;padding:0px;">
+        <!-- dyna content-->
+        <div class="col-md-12" style="margin:0px;padding:10px;">
+        {% if species_list %}
+          <div class="row-fluid" style="margin:0px;padding:0px;">
+            <div class="col-md-3" style="margin:0px;padding:0px;"><h3>Choose a species:</h3></div>
+            <div class="col-md-9" id="custom-templates" style="margin:0px;padding:0px;">
+              <input class="typeahead" type="text" placeholder="Type a species name to model" />
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12" style="margin:0px;padding:10px;">
+<script>
+var bSpecies = new Bloodhound({
+  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  remote: {
+    url: '/lm/species/prefix/?search=%QUERY',
+    wildcard: '%QUERY'
+  },
+});
+
+function speciesWithDefaults(q, sync) {
+  if (q === '') {
+    sync(bSpecies.get('{{ species_list | join:"', '" }}'));
+  } else {
+    bSpecies.search(q, sync);
+  }
+}
+ 
+$('#custom-templates .typeahead').typeahead({minLength: 0,}, {
+  name: 'species',
+  display: 'species',
+  limit: 30,
+  source: bSpecies,
+  templates: {
+    empty: [
+      '<div class="empty-message">',
+        'Unable to find any species in iDigBio that match the current query',
+      '</div>'
+    ].join('\n'),
+    suggestion: function(data) {
+     return '<div><strong>' + data.species + '</strong> - ' + data.specimens + ' specimens</div>';
+    }
+  }
+}).on( 'typeahead:selected', function(event, selected_object, dataset) {
+   window.location.href = '/lm/map/' + selected_object.species
+});
+</script>
+{% else %}
+    <h3>No maps are available.</h3>
+{% endif %}  
+
+{% if species %}
+{% include "lm/map.html" %}
+{% endif %}  
+
+        </div>
+      </div>
+    </div>
