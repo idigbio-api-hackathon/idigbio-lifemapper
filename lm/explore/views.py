@@ -5,7 +5,7 @@ import idigbio
 import json
 
 def individualcount(request):
-    sUrl = idigbio.IDIGBIO_API_BASE + "v2/search/records/?limit=1&no_attribution&fields=[%22uuid%22]"
+    sUrl = idigbio.IDIGBIO_API_BASE + "v2/search/records/?limit=1&no_attribution=1&fields=[%22uuid%22]"
     jdata = idigbio.wgetLoadJsonTime(sUrl)
     recordsTotal = "{:,}".format(jdata["itemCount"])
 
@@ -29,21 +29,39 @@ def individualcount(request):
 def download(request):
     # Create the HttpResponse object with the appropriate CSV header.
     case = request.GET.get('case')
+    
     response = HttpResponse(content_type='text/csv')
+    response['Set-Cookie'] = 'fileDownload=true; path=/'
     response['Content-Disposition'] = 'attachment; filename="' + case + '.csv"'
     if case == "individualCountNegative":
+        # In this case we are looking for an additional parameter with the value
+        lte = request.GET.get('lte')
+        gt = request.GET.get('gt')
+        king = request.GET.get('kingdom')
+        rq = ""
+        if lte:
+            rq = ",%22lte%22:" + lte
+        if gt:
+            rq += ",%22gt%22:" + gt
+        if rq != "":
+            if king:
+                rq = "rq={%22individualcount%22:{%22type%22:%22range%22" + rq + "},%22kingdom%22:" + king + "}&"
+            else:
+                rq = "rq={%22individualcount%22:{%22type%22:%22range%22" + rq + "}}&"
+        fields = ["uuid", "data.dwc:occurrenceID", "data.dwc:institutionCode", "data.dwc:collectionCode", "data.dwc:catalogNumber", "data.dwc:family", "data.dwc:scientificname", "data.dwc:eventDate", "data.dwc:country", "data.dwc:stateProvince", "data.dwc:individualCount"]
+        print "case", case, rq
         writer = csv.writer(response)
+        writer.writerow(fields)
         offset = 0
-        icnUrl = idigbio.IDIGBIO_API_BASE + "v2/search/records/?rq={%22individualcount%22:{%22type%22:%22range%22,%22lte%22:0}}"
-        jdata = idigbio.wgetLoadJsonTime(icnUrl)
-        idigbio.json2Table(jdata, writer, ["uuid", "individualCount", "data.dwc:occurrenceID", "data.dwc:institutionCode", "data.dwc:collectionCode", "data.dwc:individualCount"])
-        recLeft = jdata["itemCount"] - len(jdata["items"])
-        while recLeft > 0:
-            icnUrl = idigbio.IDIGBIO_API_BASE + "v2/search/records/?rq={%22individualcount%22:{%22type%22:%22range%22,%22lte%22:0}}&offset=" + str(offset)
-            offset += len(jdata["items"])
+        while True:
+            icnUrl = idigbio.IDIGBIO_API_BASE + "v2/search/records/?" + rq+ "no_attribution=1&limit=" + str(idigbio.IDIGBIO_SEARCH_LIMIT) + "&offset=" + str(offset)
             jdata = idigbio.wgetLoadJsonTime(icnUrl)
-            idigbio.json2Table(jdata, writer, ["uuid", "individualCount", "data.dwc:occurrenceID", "data.dwc:institutionCode", "data.dwc:collectionCode", "data.dwc:individualCount"])
-            recLeft -= len(jdata["items"])
+            if jdata == None:
+                break
+            offset += len(jdata["items"])
+            idigbio.json2Table(jdata, writer, fields)
+            if offset >= jdata["itemCount"]:
+                break
     return response
 
 #total = 0

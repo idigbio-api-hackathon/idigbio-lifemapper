@@ -2,11 +2,32 @@
     <script type="text/javascript">
       google.load("visualization", "1.1", {packages:["corechart"]});
       google.setOnLoadCallback(drawChart);
+      function download(lte, gt, king, count) {
+            $('#dmesg').modal('show');
+            if (count != null && gt != null) {
+              $('#download_msg').html('Querying for individual count of ' + lte + ' for kingdom ' + king + ' resulting in ' + count + ' specimens.');
+              params = '&lte=' + lte + '&gt=' + gt + '&kingdom=%22' + king + '%22';
+            } else {
+              $('#download_msg').html('Querying for individual count less than ' + lte + '. Please be patient, as it may take a while to process your request.');
+              params = '&lte=' + lte;
+            }
+ 
+            $.fileDownload('http://lifemapper.acis.ufl.edu/lm/explore/download?case=individualCountNegative' + params, {
+              successCallback: function(url) {
+                $('#dmesg').modal('hide');
+              },
+              failCallback: function(responseHtml, url) {
+                $('#dmesg').modal('hide');
+                $('#dmesg_err').modal('show');
+              }
+            });
+      }
+      // The select handler. Call the chart's getSelection() method
       function drawChart() {
 
         var data = google.visualization.arrayToDataTable({{ data|safe }});
         var options = {
-          title: 'Animalia is a kingdom contributing with high individualCount values',
+          title: 'Animalia is the kingdom contributing with high individualCount values',
           legend: { position: 'top', maxLines: 3 },
           isStacked: 'percent',
         };
@@ -16,12 +37,25 @@
 
         var datan = google.visualization.arrayToDataTable({{ datan|safe }});
         var optionsn = {
-          title: 'Animalia is a kingdom contributing with negative/zero individualCount values',
+          title: 'Animalia is the kingdom contributing with negative/zero individualCount values',
           legend: { position: 'top', maxLines: 3 },
           isStacked: 'percent',
         };
 
         var chartn = new google.visualization.ColumnChart(document.getElementById('individualCountNegativeChart'));
+        function selectHandler() {
+          var selectedItem = chartn.getSelection()[0];
+          if (selectedItem) {
+            var value = datan.getValue(selectedItem.row, 0);
+            var king = datan.getColumnLabel(selectedItem.column);
+            var count = datan.getValue(selectedItem.row, selectedItem.column);
+ 
+            download(value, value - 1, king, count); 
+          }
+        }
+        // Listen for the 'select' event, and call my function selectHandler() when
+        // the user selects something on the chart.
+        google.visualization.events.addListener(chartn, 'select', selectHandler);
         chartn.draw(datan, optionsn);
       }
     </script>
@@ -43,10 +77,49 @@
 {{individualCountTotal}}
         </div>
         <div class="col-md-12" style="margin:0px;padding:10px;">
-            <b>Distribution of individualCount value per Kingdom</b>
-            <div id="individualCountChart" style="width: 900px; height: 500px;"></div>
+          <b>Distribution of individualCount value per Kingdom</b>
+          <div id="individualCountChart" style="width: 900px; height: 500px;"></div>
         </div>
         <div class="col-md-12" style="margin:0px;padding:10px;">
-            <b>Distribution of negative/zero individualCount value per Kingdom</b>
-            <div id="individualCountNegativeChart" style="width: 900px; height: 500px;"></div>
+          <b>Distribution of negative/zero individualCount value per Kingdom</b>
+          <div class="row">
+            <div class="col-sm-1" style="margin:0px;padding:10px;"></div>
+            <div class="col-sm-10" style="margin:0px;padding:10px;">
+              <div onclick="download(0, null, null, null);"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Download the data containing negative/zero individualCount</div>
+              <br/>To download specific cases, click the desired block in the bar graph.
+            </div>
+          </div>
+          <div id="individualCountNegativeChart" style="width: 900px; height: 500px;"></div>
+          <div id="dmesg" class="modal fade" role="dialog" aria-labelledby="gridSystemModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="gridSystemModalLabel">Download being processed <i id="spinner" class="fa fa-refresh fa-spin"></i></h4>
+                </div>
+                <div class="modal-body">
+                  <div class="container-fluid">
+                    <div class="row">
+                      <div class="col-md-12" id="download_msg"></div>
+                    </div>
+                  </div>
+                </div>
+              </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+          </div><!-- /.modal -->
+          <div id="dmesg_err" class="modal fade" role="dialog" aria-labelledby="gridSystemModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="gridSystemModalLabel">Download Error</h4>
+                </div>
+                <div class="modal-body">
+                  <div class="container-fluid">
+                    <div class="row">
+                      <div class="col-md-12">There was an error downloading the requested data. Please try again later, or submit feedback message through the button to the right.</div>
+                    </div>
+                  </div>
+                </div>
+              </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+          </div><!-- /.modal -->
         </div>

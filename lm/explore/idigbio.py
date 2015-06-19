@@ -15,6 +15,9 @@ def wgetLoadJsonTime(url):
         try:
             data = urllib2.urlopen(urllib.quote(url, safe="%/:=&?~#+!$,;'@()*[]"))
         except urllib2.HTTPError, e:
+            if e.code == 400:
+                print "HTTP Error:", e.code, url
+                break
             print "HTTP Error:", e.code, url, "Retrying in", (i + 1), "seconds"
             time.sleep(i + 1)
             continue
@@ -22,6 +25,7 @@ def wgetLoadJsonTime(url):
             print "URL Error:", e.reason, url
             continue
         break
+    j = None
     if data:
         j = json.load(data)
     return j
@@ -72,6 +76,16 @@ def topJson2Table(jdata, xField, yField=None, isXInt=False, collapseXTo=0):
         xCount += 1
     return tdata
 
+def tryEncode(s):
+    try:
+        if isinstance(s, unicode):
+            return s.encode('utf-8')
+        else:
+            return s
+    except Exception, e:
+        print('Exception in encoding {0} {1}'.format(type(e), str(e)))
+        return ''
+
 def json2Table(jdata, writer, fields):
 
     for item in jdata["items"]:
@@ -80,12 +94,12 @@ def json2Table(jdata, writer, fields):
             if field.startswith('data.'):
                 subfields = field.split(".")
                 if subfields[1] in item["data"]:
-                    row.append(item["data"][subfields[1]])
+                    row.append(tryEncode(item["data"][subfields[1]]))
                 else:
                     row.append("")
             else:
-                if field in item:
-                    row.append(item["indexTerms"][field])
+                if field in item["indexTerms"]:
+                    row.append(tryEncode(item["indexTerms"][field]))
                 else:
                     row.append("")
         writer.writerow(row)
