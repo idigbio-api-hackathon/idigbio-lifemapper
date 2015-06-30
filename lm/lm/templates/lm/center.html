@@ -53,8 +53,10 @@ $('#custom-templates .typeahead').typeahead({minLength: 0,}, {
     <h3>No maps are available.</h3>
 {% endif %}  
 
-{% if species %}
+{% if maps %}
 {% include "lm/map.html" %}
+{% elif species %}
+    <h3>Predicted distributions for <i><b>{{species}}</b></i> are not available (lack of minimum points).</h3>
 {% endif %}  
 
         </div>
