@@ -30,7 +30,12 @@
               </li>-->
               <li{% if request.path = '/lm/explore/'%} class="active"{% endif %}><a href="/lm/explore" >Explore Data</a></li>
               <li{% if request.path = '/lm/tutorial/'%} class="active"{% endif %}><a href="/lm/map/tutorial/" >Tutorial</a></li>
-              <li><a href="https://www.idigbio.org/content/community-research-tools" >Research Tools</a></li>
+              <li><a href="https://www.idigbio.org/content/community-research-tools" >Research Tools</a>
+                <ul id="research-menu">
+                  <li><a href="http://phylojive.acis.ufl.edu" >PhyloJIVE</a></li>
+                  <li{% if request.path = '/lm/map/'%} class="active"{% endif %}><a href="/lm/map" >Lifemapper</a></li>
+                </ul>
+              </li>
           </ul>
 
           <ul id="user-menu" style="float:right">
