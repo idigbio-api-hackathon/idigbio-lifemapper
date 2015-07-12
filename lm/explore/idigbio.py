@@ -3,7 +3,7 @@ import time
 import urllib
 import urllib2
 
-IDIGBIO_API_BASE = "http://beta-search.idigbio.org/"
+IDIGBIO_API_BASE = "http://search.idigbio.org/"
 IDIGBIO_SEARCH_LIMIT = 5000
 
 # Wgets the content of the URL, and loads the content as JSON
